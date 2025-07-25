@@ -53,6 +53,13 @@ public class MessageBoardService
             return new CommandResponse { ShouldExit = false, Message = messages };
         }
 
+        // Check for follow pattern: <username> follows <project>
+        if (TryParseFollowCommand(input, out string followUsername, out string followProjectName))
+        {
+            _messageBoard.Follow(followUsername, followProjectName);
+            return new CommandResponse { ShouldExit = false, Message = $"{followUsername} is now following {followProjectName}" };
+        }
+
         // Check for post pattern: <username> -> @<project> <message>
         if (TryParsePostCommand(input, out string username, out string projectName, out string message))
         {
@@ -61,6 +68,26 @@ public class MessageBoardService
         } else {
             return new CommandResponse { ShouldExit = false, Message = $"Command not recognized: {input}" };
         }
+    }
+
+    private bool TryParseFollowCommand(string input, out string username, out string projectName)
+    {
+        username = string.Empty;
+        projectName = string.Empty;
+
+        var parts = input.Split(" follows ", StringSplitOptions.None);
+        if (parts.Length != 2)
+            return false;
+
+        username = parts[0].Trim();
+        if (string.IsNullOrEmpty(username) || username.Contains(' '))
+            return false;
+
+        projectName = parts[1].Trim();
+        if (string.IsNullOrEmpty(projectName) || projectName.Contains(' '))
+            return false;
+
+        return true;
     }
 
     private bool TryParsePostCommand(string input, out string username, out string projectName, out string message)

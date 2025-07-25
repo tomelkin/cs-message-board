@@ -75,4 +75,91 @@ public class MessageBoardTests
         Assert.Contains("alice\nWorld (", result);
         Assert.Contains("ago)", result);
     }
+
+    [Fact]
+    public void Follow_WithNewUser_ShouldCreateUserSubscriptionsList()
+    {
+        _messageBoard.Follow("alice", "project1");
+
+        var subscriptions = _messageBoard.GetProjectSubscriptions("alice");
+        
+        Assert.Single(subscriptions);
+        Assert.Contains("project1", subscriptions);
+    }
+
+    [Fact]
+    public void Follow_WithExistingUser_ShouldAddToExistingSubscriptionsList()
+    {
+        _messageBoard.Follow("john", "project1");
+        _messageBoard.Follow("john", "project2");
+
+        var subscriptions = _messageBoard.GetProjectSubscriptions("john");
+        
+        Assert.Equal(2, subscriptions.Count);
+        Assert.Contains("project1", subscriptions);
+        Assert.Contains("project2", subscriptions);
+    }
+
+    [Fact]
+    public void Follow_WithSameUserAndProject_ShouldNotAddDuplicate()
+    {
+        _messageBoard.Follow("alice", "project1");
+        _messageBoard.Follow("alice", "project1"); // Duplicate follow
+
+        var subscriptions = _messageBoard.GetProjectSubscriptions("alice");
+        
+        Assert.Single(subscriptions);
+        Assert.Contains("project1", subscriptions);
+    }
+
+    [Fact]
+    public void Follow_WithDifferentUsersFollowingSameProject_ShouldWork()
+    {
+        _messageBoard.Follow("alice", "project1");
+        _messageBoard.Follow("bob", "project1");
+        _messageBoard.Follow("charlie", "project1");
+
+        var aliceSubscriptions = _messageBoard.GetProjectSubscriptions("alice");
+        var bobSubscriptions = _messageBoard.GetProjectSubscriptions("bob");
+        var charlieSubscriptions = _messageBoard.GetProjectSubscriptions("charlie");
+        
+        Assert.Single(aliceSubscriptions);
+        Assert.Contains("project1", aliceSubscriptions);
+        
+        Assert.Single(bobSubscriptions);
+        Assert.Contains("project1", bobSubscriptions);
+        
+        Assert.Single(charlieSubscriptions);
+        Assert.Contains("project1", charlieSubscriptions);
+    }
+
+    [Fact]
+    public void GetProjectSubscriptions_WithNonExistentUser_ShouldReturnEmptyList()
+    {
+        var subscriptions = _messageBoard.GetProjectSubscriptions("nonexistent");
+        
+        Assert.NotNull(subscriptions);
+        Assert.Empty(subscriptions);
+    }
+
+    [Fact]
+    public void GetProjectSubscriptions_ShouldReturnCopyOfList()
+    {
+        _messageBoard.Follow("alice", "project1");
+        
+        var subscriptions1 = _messageBoard.GetProjectSubscriptions("alice");
+        var subscriptions2 = _messageBoard.GetProjectSubscriptions("alice");
+        
+        // Should be equal but not the same reference
+        Assert.Equal(subscriptions1, subscriptions2);
+        Assert.NotSame(subscriptions1, subscriptions2);
+        
+        // Modifying the returned list should not affect internal state
+        subscriptions1.Add("project2");
+        var subscriptionsAfterModification = _messageBoard.GetProjectSubscriptions("alice");
+        
+        Assert.Single(subscriptionsAfterModification);
+        Assert.Contains("project1", subscriptionsAfterModification);
+        Assert.DoesNotContain("project2", subscriptionsAfterModification);
+    }
 } 

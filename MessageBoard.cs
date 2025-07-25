@@ -3,10 +3,12 @@ namespace cs_message_board;
 public class MessageBoard
 {
     private readonly Dictionary<string, Project> _projects;
+    private readonly Dictionary<string, List<string>> _projectSubscriptions;
 
     public MessageBoard()
     {
         _projects = new Dictionary<string, Project>();
+        _projectSubscriptions = new Dictionary<string, List<string>>();
     }
 
     public void Post(string username, string projectName, string messageContent)
@@ -29,5 +31,28 @@ public class MessageBoard
         }
         
         return $"Project '{projectName}' not found.";
+    }
+
+    public void Follow(string username, string projectName)
+    {
+        if (!_projectSubscriptions.ContainsKey(username))
+        {
+            _projectSubscriptions[username] = new List<string>();
+        }
+
+        if (!_projectSubscriptions[username].Contains(projectName))
+        {
+            _projectSubscriptions[username].Add(projectName);
+        }
+    }
+
+    public List<string> GetProjectSubscriptions(string username)
+    {
+        if (_projectSubscriptions.TryGetValue(username, out var subscriptions))
+        {
+            return new List<string>(subscriptions); // Return a copy to prevent external modification
+        }
+        
+        return new List<string>(); // Return empty list if user has no subscriptions
     }
 } 

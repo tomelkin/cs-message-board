@@ -4,9 +4,8 @@ namespace cs_message_board.Tests;
 
 public class MessageBoardServiceIntegrationTests
 {
- 
     [Fact]
-    public void Run_PostAndReadMessages_ShouldDisplayUsernamesWithNewlines()
+    public void Run_PostAndReadMessages_ShouldDisplayUsernamesWithTimeAgo()
     {
         var service = new MessageBoardService();
         var input = new StringReader("john -> @project1 Hello world\nalice -> @project1 How are you?\nproject1\nquit\n");

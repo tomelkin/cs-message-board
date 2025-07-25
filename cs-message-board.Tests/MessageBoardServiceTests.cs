@@ -141,4 +141,84 @@ public class MessageBoardServiceTests
         Assert.False(response.ShouldExit);
         Assert.Null(response.Message);
     }
+
+    [Fact]
+    public void ProcessInput_WithValidFollowCommand_ShouldReturnFollowConfirmation()
+    {
+        var response = _messageBoardService.ProcessInput("alice follows project1");
+
+        Assert.False(response.ShouldExit);
+        Assert.Equal("alice is now following project1", response.Message);
+    }
+
+    [Fact]
+    public void ProcessInput_WithFollowCommandDifferentCase_ShouldWork()
+    {
+        var response = _messageBoardService.ProcessInput("john follows myproject");
+
+        Assert.False(response.ShouldExit);
+        Assert.Equal("john is now following myproject", response.Message);
+    }
+
+    [Fact]
+    public void ProcessInput_WithFollowCommandMissingUsername_ShouldNotMatch()
+    {
+        var response = _messageBoardService.ProcessInput("follows project1");
+
+        Assert.False(response.ShouldExit);
+        Assert.Equal("Command not recognized: follows project1", response.Message);
+    }
+
+    [Fact]
+    public void ProcessInput_WithFollowCommandMissingProject_ShouldNotMatch()
+    {
+        var response = _messageBoardService.ProcessInput("alice follows");
+
+        Assert.False(response.ShouldExit);
+        Assert.Equal("Command not recognized: alice follows", response.Message);
+    }
+
+    [Fact]
+    public void ProcessInput_WithFollowCommandUsernameWithSpaces_ShouldNotMatch()
+    {
+        var response = _messageBoardService.ProcessInput("alice smith follows project1");
+
+        Assert.False(response.ShouldExit);
+        Assert.Equal("Command not recognized: alice smith follows project1", response.Message);
+    }
+
+    [Fact]
+    public void ProcessInput_WithFollowCommandProjectWithSpaces_ShouldNotMatch()
+    {
+        var response = _messageBoardService.ProcessInput("alice follows project name");
+
+        Assert.False(response.ShouldExit);
+        Assert.Equal("Command not recognized: alice follows project name", response.Message);
+    }
+
+    [Fact]
+    public void ProcessInput_WithFollowCommandWrongKeyword_ShouldNotMatch()
+    {
+        var response = _messageBoardService.ProcessInput("alice follow project1");
+
+        Assert.False(response.ShouldExit);
+        Assert.Equal("Command not recognized: alice follow project1", response.Message);
+    }
+
+    [Fact]
+    public void ProcessInput_WithMultipleFollowCommands_ShouldWorkForEach()
+    {
+        var response1 = _messageBoardService.ProcessInput("alice follows project1");
+        var response2 = _messageBoardService.ProcessInput("alice follows project2");
+        var response3 = _messageBoardService.ProcessInput("bob follows project1");
+
+        Assert.False(response1.ShouldExit);
+        Assert.Equal("alice is now following project1", response1.Message);
+        
+        Assert.False(response2.ShouldExit);
+        Assert.Equal("alice is now following project2", response2.Message);
+        
+        Assert.False(response3.ShouldExit);
+        Assert.Equal("bob is now following project1", response3.Message);
+    }
 } 
