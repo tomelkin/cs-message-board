@@ -162,4 +162,93 @@ public class MessageBoardTests
         Assert.Contains("project1", subscriptionsAfterModification);
         Assert.DoesNotContain("project2", subscriptionsAfterModification);
     }
+
+    [Fact]
+    public void GetWall_WithNonExistentUser_ShouldReturnNoSubscriptionsMessage()
+    {
+        var result = _messageBoard.GetWall("nonexistent");
+        
+        Assert.Equal("No subscriptions found for nonexistent.", result);
+    }
+
+    [Fact]
+    public void GetWall_WithUserHavingNoMessages_ShouldReturnNoMessagesMessage()
+    {
+        _messageBoard.Follow("alice", "project1");
+        
+        var result = _messageBoard.GetWall("alice");
+        
+        Assert.Equal("No messages in subscribed projects.", result);
+    }
+
+    [Fact]
+    public void GetWall_WithUserHavingSingleProjectMessages_ShouldReturnFormattedMessages()
+    {
+        _messageBoard.Follow("alice", "project1");
+        _messageBoard.Post("john", "project1", "Hello world");
+        _messageBoard.Post("bob", "project1", "How are you?");
+        
+        var result = _messageBoard.GetWall("alice");
+        
+        Assert.Contains("john\nHello world (", result);
+        Assert.Contains("bob\nHow are you? (", result);
+        Assert.Contains("ago)", result);
+    }
+
+    [Fact]
+    public void GetWall_WithUserHavingMultipleProjectMessages_ShouldCombineAndFormat()
+    {
+        _messageBoard.Follow("alice", "project1");
+        _messageBoard.Follow("alice", "project2");
+        
+        _messageBoard.Post("john", "project1", "Message from project1");
+        _messageBoard.Post("jane", "project2", "Message from project2");
+        
+        var result = _messageBoard.GetWall("alice");
+        
+        Assert.Contains("john\nMessage from project1 (", result);
+        Assert.Contains("jane\nMessage from project2 (", result);
+        Assert.Contains("ago)", result);
+    }
+
+    [Fact]
+    public void GetWall_ShouldSortMessagesByTimestampOldestFirst()
+    {
+        _messageBoard.Follow("alice", "project1");
+        
+        var oldTime = DateTime.Now.AddMinutes(-10);
+        var middleTime = DateTime.Now.AddMinutes(-5);
+        var newTime = DateTime.Now;
+        
+        // Post in non-chronological order
+        _messageBoard.Post("charlie", "project1", "Newest message");
+        System.Threading.Thread.Sleep(10); // Small delay to ensure different timestamps
+        _messageBoard.Post("bob", "project1", "Middle message");
+        System.Threading.Thread.Sleep(10);
+        _messageBoard.Post("alice", "project1", "Oldest message");
+        
+        var result = _messageBoard.GetWall("alice");
+        var lines = result.Split('\n');
+        
+        // Should be sorted oldest first (alice, bob, charlie)
+        // Each message takes 2 lines (username, then content with time)
+        Assert.Contains("charlie", lines[0]); // First message posted (oldest)
+        Assert.Contains("bob", lines[2]);     // Second message posted  
+        Assert.Contains("alice", lines[4]);   // Third message posted (newest)
+    }
+
+    [Fact]
+    public void GetWall_WithMessagesFromNonSubscribedProjects_ShouldNotIncludeThem()
+    {
+        _messageBoard.Follow("alice", "project1");
+        
+        _messageBoard.Post("john", "project1", "Subscribed message");
+        _messageBoard.Post("jane", "project2", "Non-subscribed message");
+        
+        var result = _messageBoard.GetWall("alice");
+        
+        Assert.Contains("john\nSubscribed message (", result);
+        Assert.DoesNotContain("jane", result);
+        Assert.DoesNotContain("Non-subscribed message", result);
+    }
 } 

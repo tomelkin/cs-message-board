@@ -1,3 +1,5 @@
+using System.Linq;
+
 namespace cs_message_board;
 
 public class MessageBoard
@@ -54,5 +56,33 @@ public class MessageBoard
         }
         
         return new List<string>(); // Return empty list if user has no subscriptions
+    }
+
+    public string GetWall(string username)
+    {
+        if (!_projectSubscriptions.TryGetValue(username, out var subscribedProjects))
+        {
+            return $"No subscriptions found for {username}.";
+        }
+
+        var allMessages = new List<Message>();
+        
+        foreach (var projectName in subscribedProjects)
+        {
+            if (_projects.TryGetValue(projectName, out var project))
+            {
+                allMessages.AddRange(project.Messages);
+            }
+        }
+
+        if (!allMessages.Any())
+        {
+            return "No messages in subscribed projects.";
+        }
+
+        // Sort by timestamp, oldest first
+        var sortedMessages = allMessages.OrderBy(m => m.Timestamp).ToList();
+        
+        return string.Join("\n", sortedMessages.Select(m => m.ToDisplayString()));
     }
 } 

@@ -221,4 +221,83 @@ public class MessageBoardServiceTests
         Assert.False(response3.ShouldExit);
         Assert.Equal("bob is now following project1", response3.Message);
     }
+
+    [Fact]
+    public void ProcessInput_WithValidWallCommand_ShouldReturnWallContent()
+    {
+        _messageBoardService.ProcessInput("alice follows project1");
+        _messageBoardService.ProcessInput("john -> @project1 Hello from project1");
+
+        var response = _messageBoardService.ProcessInput("alice wall");
+
+        Assert.False(response.ShouldExit);
+        Assert.Contains("john\nHello from project1 (", response.Message);
+        Assert.Contains("ago)", response.Message);
+    }
+
+    [Fact]
+    public void ProcessInput_WithWallCommandUppercase_ShouldWork()
+    {
+        _messageBoardService.ProcessInput("bob follows project1");
+        _messageBoardService.ProcessInput("jane -> @project1 Test message");
+
+        var response = _messageBoardService.ProcessInput("bob WALL");
+
+        Assert.False(response.ShouldExit);
+        Assert.Contains("jane\nTest message (", response.Message);
+    }
+
+    [Fact]
+    public void ProcessInput_WithWallCommandNoSubscriptions_ShouldReturnNoSubscriptionsMessage()
+    {
+        var response = _messageBoardService.ProcessInput("alice wall");
+
+        Assert.False(response.ShouldExit);
+        Assert.Equal("No subscriptions found for alice.", response.Message);
+    }
+
+    [Fact]
+    public void ProcessInput_WithWallCommandMissingUsername_ShouldBeInterpretedAsProjectRead()
+    {
+        var response = _messageBoardService.ProcessInput("wall");
+
+        Assert.False(response.ShouldExit);
+        Assert.Equal("Project 'wall' not found.", response.Message);
+    }
+
+    [Fact]
+    public void ProcessInput_WithWallCommandExtraWords_ShouldNotMatch()
+    {
+        var response = _messageBoardService.ProcessInput("alice wall extra");
+
+        Assert.False(response.ShouldExit);
+        Assert.Equal("Command not recognized: alice wall extra", response.Message);
+    }
+
+    [Fact]
+    public void ProcessInput_WithWallCommandWrongKeyword_ShouldNotMatch()
+    {
+        var response = _messageBoardService.ProcessInput("alice walls");
+
+        Assert.False(response.ShouldExit);
+        Assert.Equal("Command not recognized: alice walls", response.Message);
+    }
+
+    [Fact]
+    public void ProcessInput_WithOnlyWallKeyword_ShouldBeInterpretedAsProjectRead()
+    {
+        var response = _messageBoardService.ProcessInput("  wall  ");
+
+        Assert.False(response.ShouldExit);
+        Assert.Equal("Project 'wall' not found.", response.Message);
+    }
+
+    [Fact]
+    public void ProcessInput_WithInvalidWallCommandFormat_ShouldNotMatch()
+    {
+        var response = _messageBoardService.ProcessInput("alice bob wall");
+
+        Assert.False(response.ShouldExit);
+        Assert.Equal("Command not recognized: alice bob wall", response.Message);
+    }
 } 

@@ -53,6 +53,13 @@ public class MessageBoardService
             return new CommandResponse { ShouldExit = false, Message = messages };
         }
 
+        // Check for wall pattern: <username> wall
+        if (TryParseWallCommand(input, out string wallUsername))
+        {
+            var wall = _messageBoard.GetWall(wallUsername);
+            return new CommandResponse { ShouldExit = false, Message = wall };
+        }
+
         // Check for follow pattern: <username> follows <project>
         if (TryParseFollowCommand(input, out string followUsername, out string followProjectName))
         {
@@ -68,6 +75,24 @@ public class MessageBoardService
         } else {
             return new CommandResponse { ShouldExit = false, Message = $"Command not recognized: {input}" };
         }
+    }
+
+    private bool TryParseWallCommand(string input, out string username)
+    {
+        username = string.Empty;
+
+        var parts = input.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        if (parts.Length != 2)
+            return false;
+
+        if (parts[1].ToLowerInvariant() != "wall")
+            return false;
+
+        username = parts[0].Trim();
+        if (string.IsNullOrEmpty(username))
+            return false;
+
+        return true;
     }
 
     private bool TryParseFollowCommand(string input, out string username, out string projectName)
