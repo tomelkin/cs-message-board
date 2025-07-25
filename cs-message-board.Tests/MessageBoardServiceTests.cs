@@ -73,4 +73,70 @@ public class MessageBoardServiceTests
         Assert.False(response.ShouldExit);
         Assert.Equal("Command not recognized: invalid command", response.Message);
     }
+
+    [Fact]
+    public void ProcessInput_WithSingleWordProjectName_ShouldReturnFormattedMessages()
+    {
+        _messageBoardService.ProcessInput("john -> @project1 First message");
+        _messageBoardService.ProcessInput("alice -> @project1 Second message");
+
+        var response = _messageBoardService.ProcessInput("project1");
+
+        Assert.False(response.ShouldExit);
+        Assert.Equal("john\nFirst message\nalice\nSecond message", response.Message);
+    }
+
+    [Fact]
+    public void ProcessInput_WithNonExistentProjectName_ShouldReturnNotFound()
+    {
+        var response = _messageBoardService.ProcessInput("nonexistent");
+
+        Assert.False(response.ShouldExit);
+        Assert.Equal("Project 'nonexistent' not found.", response.Message);
+    }
+
+    [Fact]
+    public void ProcessInput_WithQuitShouldNotBeReadAsProjectName()
+    {
+        var response = _messageBoardService.ProcessInput("quit");
+
+        Assert.True(response.ShouldExit);
+        Assert.Equal("Goodbye!", response.Message);
+    }
+
+    [Fact]
+    public void ProcessInput_WithProjectNameHavingSpaces_ShouldNotMatchSingleWord()
+    {
+        var response = _messageBoardService.ProcessInput("project name with spaces");
+
+        Assert.False(response.ShouldExit);
+        Assert.Equal("Command not recognized: project name with spaces", response.Message);
+    }
+
+    [Fact]
+    public void ProcessInput_WithWhitespaceOnly_ShouldReturnCommandNotRecognized()
+    {
+        var response = _messageBoardService.ProcessInput("   ");
+
+        Assert.False(response.ShouldExit);
+        Assert.Equal("Command not recognized:    ", response.Message);
+    }
+
+    [Fact]
+    public void ProcessInput_WithEmptyString_ShouldReturnNull()
+    {
+        var response = _messageBoardService.ProcessInput("");
+
+        Assert.False(response.ShouldExit);
+        Assert.Null(response.Message);
+    }
+
+    [Fact]
+    public void ProcessInput_WithNull_ShouldReturnNull()
+    {
+        var response = _messageBoardService.ProcessInput(null);
+
+        Assert.False(response.ShouldExit);
+        Assert.Null(response.Message);
+    }
 } 

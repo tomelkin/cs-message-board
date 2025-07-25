@@ -5,11 +5,13 @@ namespace cs_message_board.Tests;
 public class MessageTests
 {
     [Fact]
-    public void Message_ShouldInitializeWithContentsAndTimestamp()
+    public void Message_ShouldInitializeWithUsernameContentsAndTimestamp()
     {
         var timestamp = DateTime.Now;
-        var message = new Message("Test content", timestamp);
-
+        
+        var message = new Message("john", "Test content", timestamp);
+        
+        Assert.Equal("john", message.Username);
         Assert.Equal("Test content", message.Contents);
         Assert.Equal(timestamp, message.Timestamp);
     }
@@ -17,13 +19,14 @@ public class MessageTests
     [Fact]
     public void Message_ShouldAllowPropertyModification()
     {
-        var message = new Message("Original", DateTime.Now);
-        var newTimestamp = DateTime.Now.AddHours(1);
-
-        message.Contents = "Modified";
-        message.Timestamp = newTimestamp;
-
-        Assert.Equal("Modified", message.Contents);
-        Assert.Equal(newTimestamp, message.Timestamp);
+        var message = new Message("alice", "Original content", DateTime.Now);
+        
+        message.Username = "bob";
+        message.Contents = "Modified content";
+        message.Timestamp = new DateTime(2023, 1, 1);
+        
+        Assert.Equal("bob", message.Username);
+        Assert.Equal("Modified content", message.Contents);
+        Assert.Equal(new DateTime(2023, 1, 1), message.Timestamp);
     }
 } 

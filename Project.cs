@@ -11,4 +11,9 @@ public class Project
         Name = name;
         Messages = new List<Message>();
     }
+
+    public string GetAllMessagesAsString()
+    {
+        return string.Join("\n", Messages.Select(m => $"{m.Username}\n{m.Contents}"));
+    }
 } 

@@ -11,7 +11,7 @@ public class MessageBoard
 
     public void Post(string username, string projectName, string messageContent)
     {
-        var message = new Message(messageContent, DateTime.Now);
+        var message = new Message(username, messageContent, DateTime.Now);
 
         if (!_projects.ContainsKey(projectName))
         {
@@ -19,5 +19,15 @@ public class MessageBoard
         }
 
         _projects[projectName].Messages.Add(message);
+    }
+
+    public string Read(string projectName)
+    {
+        if (_projects.TryGetValue(projectName, out var project))
+        {
+            return project.GetAllMessagesAsString();
+        }
+        
+        return $"Project '{projectName}' not found.";
     }
 } 

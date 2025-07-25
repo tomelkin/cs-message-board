@@ -45,6 +45,14 @@ public class MessageBoardService
         if (input.Trim().ToLowerInvariant() == "quit")
             return new CommandResponse { ShouldExit = true, Message = "Goodbye!" };
 
+        // Check for single word (project name)
+        var trimmedInput = input.Trim();
+        if (!string.IsNullOrEmpty(trimmedInput) && !trimmedInput.Contains(' '))
+        {
+            var messages = _messageBoard.Read(trimmedInput);
+            return new CommandResponse { ShouldExit = false, Message = messages };
+        }
+
         // Check for post pattern: <username> -> @<project> <message>
         if (TryParsePostCommand(input, out string username, out string projectName, out string message))
         {
