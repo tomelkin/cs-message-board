@@ -12,15 +12,6 @@ public class MessageBoardServiceTests
     }
 
     [Fact]
-    public void ProcessInput_WithValidCommand_ShouldReturnEchoResponse()
-    {
-        var response = _messageBoardService.ProcessInput("hello world");
-
-        Assert.False(response.ShouldExit);
-        Assert.Equal("You entered: hello world", response.Message);
-    }
-
-    [Fact]
     public void ProcessInput_WithQuitCommand_ShouldReturnExitResponse()
     {
         var response = _messageBoardService.ProcessInput("quit");
@@ -39,47 +30,47 @@ public class MessageBoardServiceTests
     }
 
     [Fact]
-    public void ProcessInput_WithQuitCommandWithSpaces_ShouldReturnExitResponse()
+    public void ProcessInput_WithPostCommand_ShouldReturnPostConfirmation()
     {
-        var response = _messageBoardService.ProcessInput("  quit  ");
+        var response = _messageBoardService.ProcessInput("john -> @project1 Hello world");
 
-        Assert.True(response.ShouldExit);
-        Assert.Equal("Goodbye!", response.Message);
+        Assert.False(response.ShouldExit);
+        Assert.Equal("Message posted to @project1 by john", response.Message);
     }
 
     [Fact]
-    public void ProcessInput_WithEmptyString_ShouldContinueWithoutMessage()
+    public void ProcessInput_WithPostCommandNoSpaceInUsername_ShouldWork()
     {
-        var response = _messageBoardService.ProcessInput("");
+        var response = _messageBoardService.ProcessInput("alice -> @myproject This is a test message");
 
         Assert.False(response.ShouldExit);
-        Assert.Null(response.Message);
+        Assert.Equal("Message posted to @myproject by alice", response.Message);
     }
 
     [Fact]
-    public void ProcessInput_WithNull_ShouldContinueWithoutMessage()
+    public void ProcessInput_WithPostCommandMissingMessage_ShouldNotMatch()
     {
-        var response = _messageBoardService.ProcessInput(null);
+        var response = _messageBoardService.ProcessInput("john -> @project1");
 
         Assert.False(response.ShouldExit);
-        Assert.Null(response.Message);
+        Assert.Equal("Command not recognized: john -> @project1", response.Message);
     }
 
     [Fact]
-    public void ProcessInput_WithWhitespaceCommand_ShouldEchoWhitespace()
+    public void ProcessInput_WithPostCommandMissingArrow_ShouldNotMatch()
     {
-        var response = _messageBoardService.ProcessInput("   spaces   ");
+        var response = _messageBoardService.ProcessInput("john @project1 Hello world");
 
         Assert.False(response.ShouldExit);
-        Assert.Equal("You entered:    spaces   ", response.Message);
+        Assert.Equal("Command not recognized: john @project1 Hello world", response.Message);
     }
 
     [Fact]
-    public void ProcessInput_WithSpecialCharacters_ShouldEchoExactly()
+    public void ProcessInput_WithUnrecognizedCommand_ShouldReturnNotRecognized()
     {
-        var response = _messageBoardService.ProcessInput("hello@#$%^&*()");
+        var response = _messageBoardService.ProcessInput("invalid command");
 
         Assert.False(response.ShouldExit);
-                Assert.Equal("You entered: hello@#$%^&*()", response.Message);
+        Assert.Equal("Command not recognized: invalid command", response.Message);
     }
 } 
