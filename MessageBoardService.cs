@@ -1,52 +1,50 @@
 namespace cs_message_board;
 
-/// <summary>
-/// Simple REPL service that echoes back user input
-/// </summary>
 public class MessageBoardService
 {
-    private readonly IConsoleService _console;
-
-    public MessageBoardService(IConsoleService console)
-    {
-        _console = console;
-    }
-
-    /// <summary>
     /// Runs the main REPL loop
-    /// </summary>
     public void Run()
     {
-        _console.WriteLine("Welcome to the CS Message Board!");
-        _console.WriteLine("Enter commands (type 'quit' to exit):");
-        _console.WriteLine("");
+        Console.WriteLine("Welcome to the Inlogik Message Board!");
+        Console.WriteLine("Enter commands (type 'quit' to exit):");
+        Console.WriteLine("");
 
         while (true)
         {
-            _console.Write("Enter command: ");
-            var input = _console.ReadLine();
+            Console.Write("Enter command: ");
+            var input = Console.ReadLine();
 
-            if (string.IsNullOrEmpty(input))
+            var response = ProcessInput(input);
+            if (response.ShouldExit)
             {
-                continue;
-            }
-
-            if (input.Trim().ToLowerInvariant() == "quit")
-            {
-                _console.WriteLine("Goodbye!");
+                Console.WriteLine(response.Message);
                 return;
             }
 
-            EchoCommand(input);
-            _console.WriteLine("");
+            if (response.Message != null)
+            {
+                Console.WriteLine(response.Message);
+                Console.WriteLine("");
+            }
         }
     }
 
-    /// <summary>
-    /// Echoes back the entered command
-    /// </summary>
-    public void EchoCommand(string command)
+    /// Processes user input and returns appropriate response (pure function for easy testing)
+    public CommandResponse ProcessInput(string? input)
     {
-        _console.WriteLine($"You entered: {command}");
+        if (string.IsNullOrEmpty(input))
+            return new CommandResponse { ShouldExit = false };
+
+        if (input.Trim().ToLowerInvariant() == "quit")
+            return new CommandResponse { ShouldExit = true, Message = "Goodbye!" };
+
+        return new CommandResponse { ShouldExit = false, Message = $"You entered: {input}" };
     }
+}
+
+/// Response from processing a command
+public class CommandResponse
+{
+    public bool ShouldExit { get; set; }
+    public string? Message { get; set; }
 } 
