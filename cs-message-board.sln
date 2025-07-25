@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "cs-message-board", "cs-message-board.csproj", "{171643DF-9EBD-46F9-B772-FBF9A9EA487B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "cs-message-board.Tests", "cs-message-board.Tests\cs-message-board.Tests.csproj", "{EC433DAB-E68D-4242-84DF-54E238F741D3}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{171643DF-9EBD-46F9-B772-FBF9A9EA487B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{171643DF-9EBD-46F9-B772-FBF9A9EA487B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{171643DF-9EBD-46F9-B772-FBF9A9EA487B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{171643DF-9EBD-46F9-B772-FBF9A9EA487B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EC433DAB-E68D-4242-84DF-54E238F741D3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EC433DAB-E68D-4242-84DF-54E238F741D3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EC433DAB-E68D-4242-84DF-54E238F741D3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EC433DAB-E68D-4242-84DF-54E238F741D3}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
