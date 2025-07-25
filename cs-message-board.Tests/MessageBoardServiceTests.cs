@@ -75,7 +75,7 @@ public class MessageBoardServiceTests
     }
 
     [Fact]
-    public void ProcessInput_WithSingleWordProjectName_ShouldReturnFormattedMessages()
+    public void ProcessInput_WithSingleWordProjectName_ShouldReturnMessagesWithTimeAgo()
     {
         _messageBoardService.ProcessInput("john -> @project1 First message");
         _messageBoardService.ProcessInput("alice -> @project1 Second message");
@@ -83,7 +83,9 @@ public class MessageBoardServiceTests
         var response = _messageBoardService.ProcessInput("project1");
 
         Assert.False(response.ShouldExit);
-        Assert.Equal("john\nFirst message\nalice\nSecond message", response.Message);
+        Assert.Contains("john\nFirst message (", response.Message);
+        Assert.Contains("alice\nSecond message (", response.Message);
+        Assert.Contains("ago)", response.Message);
     }
 
     [Fact]

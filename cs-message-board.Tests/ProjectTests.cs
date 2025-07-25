@@ -38,42 +38,149 @@ public class ProjectTests
     }
 
     [Fact]
-    public void GetAllMessagesAsString_WithSingleMessage_ShouldReturnUsernameAndContent()
+    public void GetAllMessagesAsString_WithSingleMessage_ShouldIncludeUsernameContentAndTimeAgo()
     {
         var project = new Project("TestProject");
         project.Messages.Add(new Message("alice", "Hello world", DateTime.Now));
 
         var result = project.GetAllMessagesAsString();
 
-        Assert.Equal("alice\nHello world", result);
+        Assert.StartsWith("alice\nHello world (", result);
+        Assert.EndsWith("ago)", result);
     }
 
     [Fact]
-    public void GetAllMessagesAsString_WithMultipleMessages_ShouldReturnFormattedMessages()
+    public void GetAllMessagesAsString_WithMultipleMessages_ShouldFormatEachWithTimeAgo()
     {
         var project = new Project("TestProject");
         project.Messages.Add(new Message("john", "First message", DateTime.Now));
         project.Messages.Add(new Message("alice", "Second message", DateTime.Now));
-        project.Messages.Add(new Message("bob", "Third message", DateTime.Now));
 
         var result = project.GetAllMessagesAsString();
 
-        Assert.Equal("john\nFirst message\nalice\nSecond message\nbob\nThird message", result);
+        Assert.Contains("john\nFirst message (", result);
+        Assert.Contains("alice\nSecond message (", result);
+        Assert.Contains("ago)", result);
     }
 
     [Fact]
-    public void GetAllMessagesAsString_ShouldIncludeUsernamesButNotTimestamps()
+    public void GetTimeAgo_WithCurrentTime_ShouldReturnOneSecondAgo()
     {
         var project = new Project("TestProject");
-        var timestamp = new DateTime(2023, 1, 1, 12, 0, 0);
-        project.Messages.Add(new Message("testuser", "Message content", timestamp));
+        var currentTime = DateTime.Now;
 
-        var result = project.GetAllMessagesAsString();
+        var result = project.GetTimeAgo(currentTime);
 
-        Assert.Equal("testuser\nMessage content", result);
-        Assert.Contains("testuser", result);
-        Assert.Contains("Message content", result);
-        Assert.DoesNotContain("2023", result);
-        Assert.DoesNotContain("12:00", result);
+        Assert.Equal("(1 second ago)", result);
+    }
+
+    [Fact]
+    public void GetTimeAgo_WithFiveSecondsAgo_ShouldReturnSecondsAgo()
+    {
+        var project = new Project("TestProject");
+        var fiveSecondsAgo = DateTime.Now.AddSeconds(-5);
+
+        var result = project.GetTimeAgo(fiveSecondsAgo);
+
+        Assert.Equal("(5 seconds ago)", result);
+    }
+
+    [Fact]
+    public void GetTimeAgo_WithOneMinuteAgo_ShouldReturnSingularMinute()
+    {
+        var project = new Project("TestProject");
+        var oneMinuteAgo = DateTime.Now.AddMinutes(-1).AddSeconds(-10);
+
+        var result = project.GetTimeAgo(oneMinuteAgo);
+
+        Assert.Equal("(1 minute ago)", result);
+    }
+
+    [Fact]
+    public void GetTimeAgo_WithFiveMinutesAgo_ShouldReturnPluralMinutes()
+    {
+        var project = new Project("TestProject");
+        var fiveMinutesAgo = DateTime.Now.AddMinutes(-5);
+
+        var result = project.GetTimeAgo(fiveMinutesAgo);
+
+        Assert.Equal("(5 minutes ago)", result);
+    }
+
+    [Fact]
+    public void GetTimeAgo_WithOneHourAgo_ShouldReturnSingularHour()
+    {
+        var project = new Project("TestProject");
+        var oneHourAgo = DateTime.Now.AddHours(-1).AddMinutes(-10);
+
+        var result = project.GetTimeAgo(oneHourAgo);
+
+        Assert.Equal("(1 hour ago)", result);
+    }
+
+    [Fact]
+    public void GetTimeAgo_WithTwoHoursAgo_ShouldReturnPluralHours()
+    {
+        var project = new Project("TestProject");
+        var twoHoursAgo = DateTime.Now.AddHours(-2);
+
+        var result = project.GetTimeAgo(twoHoursAgo);
+
+        Assert.Equal("(2 hours ago)", result);
+    }
+
+    [Fact]
+    public void GetTimeAgo_WithOneDayAgo_ShouldReturnSingularDay()
+    {
+        var project = new Project("TestProject");
+        var oneDayAgo = DateTime.Now.AddDays(-1).AddHours(-2);
+
+        var result = project.GetTimeAgo(oneDayAgo);
+
+        Assert.Equal("(1 day ago)", result);
+    }
+
+    [Fact]
+    public void GetTimeAgo_WithThreeDaysAgo_ShouldReturnPluralDays()
+    {
+        var project = new Project("TestProject");
+        var threeDaysAgo = DateTime.Now.AddDays(-3);
+
+        var result = project.GetTimeAgo(threeDaysAgo);
+
+        Assert.Equal("(3 days ago)", result);
+    }
+
+    [Fact]
+    public void GetTimeAgo_WithFiftyNineSeconds_ShouldReturnSecondsNotMinutes()
+    {
+        var project = new Project("TestProject");
+        var fiftyNineSecondsAgo = DateTime.Now.AddSeconds(-59);
+
+        var result = project.GetTimeAgo(fiftyNineSecondsAgo);
+
+        Assert.Equal("(59 seconds ago)", result);
+    }
+
+    [Fact]
+    public void GetTimeAgo_WithFiftyNineMinutes_ShouldReturnMinutesNotHours()
+    {
+        var project = new Project("TestProject");
+        var fiftyNineMinutesAgo = DateTime.Now.AddMinutes(-59);
+
+        var result = project.GetTimeAgo(fiftyNineMinutesAgo);
+
+        Assert.Equal("(59 minutes ago)", result);
+    }
+
+    [Fact]
+    public void GetTimeAgo_WithTwentyThreeHours_ShouldReturnHoursNotDays()
+    {
+        var project = new Project("TestProject");
+        var twentyThreeHoursAgo = DateTime.Now.AddHours(-23);
+
+        var result = project.GetTimeAgo(twentyThreeHoursAgo);
+
+        Assert.Equal("(23 hours ago)", result);
     }
 } 

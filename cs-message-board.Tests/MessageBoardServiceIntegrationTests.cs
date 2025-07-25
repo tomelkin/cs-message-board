@@ -22,7 +22,9 @@ public class MessageBoardServiceIntegrationTests
         Assert.Contains("Welcome to the Inlogik Message Board!", result);
         Assert.Contains("Message posted to @project1 by john", result);
         Assert.Contains("Message posted to @project1 by alice", result);
-        Assert.Contains("john\nHello world\nalice\nHow are you?", result);
+        Assert.Contains("john\nHello world (", result);
+        Assert.Contains("alice\nHow are you? (", result);
+        Assert.Contains("ago)", result);
         Assert.Contains("Goodbye!", result);
     }
 } 
