@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="cs-message-board.Tests/**" />
+    <Compile Remove="tests/**" />
   </ItemGroup>
 
 </Project>
