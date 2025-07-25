@@ -182,7 +182,7 @@ public class MessageBoardTests
     }
 
     [Fact]
-    public void GetWall_WithUserHavingSingleProjectMessages_ShouldReturnFormattedMessages()
+    public void GetWall_WithUserHavingSingleProjectMessages_ShouldUseSingleLineFormat()
     {
         _messageBoard.Follow("alice", "project1");
         _messageBoard.Post("john", "project1", "Hello world");
@@ -190,13 +190,13 @@ public class MessageBoardTests
         
         var result = _messageBoard.GetWall("alice");
         
-        Assert.Contains("john\nHello world (", result);
-        Assert.Contains("bob\nHow are you? (", result);
+        Assert.Contains("project1 - john: Hello world (", result);
+        Assert.Contains("project1 - bob: How are you? (", result);
         Assert.Contains("ago)", result);
     }
 
     [Fact]
-    public void GetWall_WithUserHavingMultipleProjectMessages_ShouldCombineAndFormat()
+    public void GetWall_WithUserHavingMultipleProjectMessages_ShouldFormatWithCorrectProjectNames()
     {
         _messageBoard.Follow("alice", "project1");
         _messageBoard.Follow("alice", "project2");
@@ -206,8 +206,8 @@ public class MessageBoardTests
         
         var result = _messageBoard.GetWall("alice");
         
-        Assert.Contains("john\nMessage from project1 (", result);
-        Assert.Contains("jane\nMessage from project2 (", result);
+        Assert.Contains("project1 - john: Message from project1 (", result);
+        Assert.Contains("project2 - jane: Message from project2 (", result);
         Assert.Contains("ago)", result);
     }
 
@@ -215,10 +215,6 @@ public class MessageBoardTests
     public void GetWall_ShouldSortMessagesByTimestampOldestFirst()
     {
         _messageBoard.Follow("alice", "project1");
-        
-        var oldTime = DateTime.Now.AddMinutes(-10);
-        var middleTime = DateTime.Now.AddMinutes(-5);
-        var newTime = DateTime.Now;
         
         // Post in non-chronological order
         _messageBoard.Post("charlie", "project1", "Newest message");
@@ -230,11 +226,11 @@ public class MessageBoardTests
         var result = _messageBoard.GetWall("alice");
         var lines = result.Split('\n');
         
-        // Should be sorted oldest first (alice, bob, charlie)
-        // Each message takes 2 lines (username, then content with time)
-        Assert.Contains("charlie", lines[0]); // First message posted (oldest)
-        Assert.Contains("bob", lines[2]);     // Second message posted  
-        Assert.Contains("alice", lines[4]);   // Third message posted (newest)
+        // Should be sorted oldest first (charlie, bob, alice)
+        // Each message is now on a single line
+        Assert.Contains("project1 - charlie: Newest message (", lines[0]); // First message posted (oldest)
+        Assert.Contains("project1 - bob: Middle message (", lines[1]);     // Second message posted  
+        Assert.Contains("project1 - alice: Oldest message (", lines[2]);   // Third message posted (newest)
     }
 
     [Fact]
@@ -247,7 +243,8 @@ public class MessageBoardTests
         
         var result = _messageBoard.GetWall("alice");
         
-        Assert.Contains("john\nSubscribed message (", result);
+        Assert.Contains("project1 - john: Subscribed message (", result);
+        Assert.DoesNotContain("project2", result);
         Assert.DoesNotContain("jane", result);
         Assert.DoesNotContain("Non-subscribed message", result);
     }

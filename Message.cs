@@ -18,7 +18,7 @@ public class Message
         return $"{Username}\n{Contents} {GetTimeAgo()}";
     }
 
-    private string GetTimeAgo()
+    public string GetTimeAgo()
     {
         var timeSpan = DateTime.Now - Timestamp;
         

@@ -223,7 +223,7 @@ public class MessageBoardServiceTests
     }
 
     [Fact]
-    public void ProcessInput_WithValidWallCommand_ShouldReturnWallContent()
+    public void ProcessInput_WithValidWallCommand_ShouldReturnWallContentInSingleLineFormat()
     {
         _messageBoardService.ProcessInput("alice follows project1");
         _messageBoardService.ProcessInput("john -> @project1 Hello from project1");
@@ -231,7 +231,7 @@ public class MessageBoardServiceTests
         var response = _messageBoardService.ProcessInput("alice wall");
 
         Assert.False(response.ShouldExit);
-        Assert.Contains("john\nHello from project1 (", response.Message);
+        Assert.Contains("project1 - john: Hello from project1 (", response.Message);
         Assert.Contains("ago)", response.Message);
     }
 
@@ -244,7 +244,7 @@ public class MessageBoardServiceTests
         var response = _messageBoardService.ProcessInput("bob WALL");
 
         Assert.False(response.ShouldExit);
-        Assert.Contains("jane\nTest message (", response.Message);
+        Assert.Contains("project1 - jane: Test message (", response.Message);
     }
 
     [Fact]

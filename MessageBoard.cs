@@ -65,24 +65,28 @@ public class MessageBoard
             return $"No subscriptions found for {username}.";
         }
 
-        var allMessages = new List<Message>();
+        var allMessagesWithProjects = new List<(Message message, string projectName)>();
         
         foreach (var projectName in subscribedProjects)
         {
             if (_projects.TryGetValue(projectName, out var project))
             {
-                allMessages.AddRange(project.Messages);
+                foreach (var message in project.Messages)
+                {
+                    allMessagesWithProjects.Add((message, projectName));
+                }
             }
         }
 
-        if (!allMessages.Any())
+        if (!allMessagesWithProjects.Any())
         {
             return "No messages in subscribed projects.";
         }
 
         // Sort by timestamp, oldest first
-        var sortedMessages = allMessages.OrderBy(m => m.Timestamp).ToList();
+        var sortedMessages = allMessagesWithProjects.OrderBy(x => x.message.Timestamp).ToList();
         
-        return string.Join("\n", sortedMessages.Select(m => m.ToDisplayString()));
+        // Format as single line: project - username: message (time ago)
+        return string.Join("\n", sortedMessages.Select(x => $"{x.projectName} - {x.message.Username}: {x.message.Contents} {x.message.GetTimeAgo()}"));
     }
 } 
